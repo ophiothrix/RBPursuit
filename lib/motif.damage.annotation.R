@@ -42,7 +42,7 @@ extract.pfm <- function (database.path, force.run = F) {
 			gap <- 4
 		}
 		for (i in 1:(length(pfms)-1)){
-			pfm.list[[motifs$MotifID[i]]] <- matrix(as.numeric(unlist(strsplit(meme.file[(pfms[i]+3):(pfms[i+1]-gap)], "\\s"))), ncol = 4, byrow = T)
+			pfm.list[[motifs$MotifID[i]]] <- matrix(as.numeric(unlist(		strsplit(gsub("  ", "", meme.file[(pfms[i]+3):(pfms[i+1]-gap)]), "\\s"))), ncol = 4, byrow = T)
 		}
 		
 		# Add column names
@@ -67,7 +67,7 @@ extract.pfm <- function (database.path, force.run = F) {
 ## Each sequence is then run against the selected motif database using FIMO
 ## Once motifs are mapped to the sequences, we map each variant to the motifs and take frequency ratio of Reference and Alternate alleles in the motif's PWM. The ratio is log2 transformed and acts as a damage score
 ## Additionally, we extract a binary feature reflecting whether a variant has been mapped to any motif.
-get.damage.scores.direct <- function(database.path, variants) {
+get.damage.scores.direct <- function(database.path, variants, force.pfm.extract = F) {
 	## Specify the "default" path to fimo binary - need to think how best do it. Perhaps in the annotation script
 	require(BSgenome.Hsapiens.UCSC.hg19)
 	require(GenomicRanges)
@@ -77,7 +77,7 @@ get.damage.scores.direct <- function(database.path, variants) {
 	variants$motif.absolute.score <- variants$motif.loss.score <- variants$motif.gain.score <- variants$motif.hit <- 0
 	
 	### Get PFMs from the database file
-	motif.PFMs <- extract.pfm(database.path, force.run = F)
+	motif.PFMs <- extract.pfm(database.path, force.run = force.pfm.extract)
 	
 	### Run FIMO on the target variants
 	variants.tmp <- variants
